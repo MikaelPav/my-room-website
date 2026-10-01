@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Room Website</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🎮 Room Website</h1>
+
+        <div id="home">
+
+            <button id="createRoom">
+                Create Room
+            </button>
+
+            <hr>
+
+            <h2>Join a Room</h2>
+
+            <input
+                id="roomCode"
+                placeholder="Enter room code"
+                maxlength="6"
+            >
+
+            <input
+                id="name"
+                placeholder="Your name"
+                maxlength="20"
+            >
+
+            <button id="joinRoom">
+                Join Room
+            </button>
+
+        </div>
+
+        <div id="room" class="hidden">
+
+            <h2>Room: <span id="displayCode"></span></h2>
+
+            <p>Share this code with your friends:</p>
+
+            <div class="code" id="bigCode"></div>
+
+            <h3>Players</h3>
+
+            <ul id="players"></ul>
+
+        </div>
+
+        <p id="message"></p>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
