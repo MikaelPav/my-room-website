@@ -1,68 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Room Website</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="style.css">
+    <title>Imposter Game</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-    <div class="container">
+<main class="container">
 
-        <h1>🎮 Room Website</h1>
 
-        <div id="home">
+    <!-- MESSAGE -->
 
-            <button id="createRoom">
-                Create Room
-            </button>
+    <div
+        id="message"
+        class="message"
+    ></div>
 
-            <hr>
 
-            <h2>Join a Room</h2>
+    <!-- ========================= -->
+    <!-- HOME -->
+    <!-- ========================= -->
 
-            <input
-                id="roomCode"
-                placeholder="Enter room code"
-                maxlength="6"
-            >
+    <section
+        id="homeView"
+        class="view"
+    >
 
-            <input
-                id="name"
-                placeholder="Your name"
-                maxlength="20"
-            >
+        <div class="eyebrow">
+            ONLINE MULTIPLAYER
+        </div>
 
-            <button id="joinRoom">
-                Join Room
-            </button>
+        <h1>
+            Imposter Game
+        </h1>
+
+        <p class="subtitle">
+            Answer the question.
+            Find the imposter.
+        </p>
+
+
+        <label for="nameInput">
+            Your name
+        </label>
+
+        <input
+            id="nameInput"
+            type="text"
+            maxlength="20"
+            placeholder="Enter your name"
+        >
+
+
+        <button
+            id="createButton"
+            class="primary"
+        >
+            Create Room
+        </button>
+
+
+        <div class="divider">
+            OR
+        </div>
+
+
+        <label for="roomCodeInput">
+            Room code
+        </label>
+
+        <input
+            id="roomCodeInput"
+            type="text"
+            maxlength="6"
+            placeholder="ABC123"
+        >
+
+
+        <button
+            id="joinButton"
+        >
+            Join Room
+        </button>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- LOBBY -->
+    <!-- ========================= -->
+
+    <section
+        id="lobbyView"
+        class="view hidden"
+    >
+
+        <div class="eyebrow">
+            LOBBY
+        </div>
+
+        <h1>
+            Room
+            <span id="roomCodeLabel"></span>
+        </h1>
+
+
+        <p>
+            Share this code with your friends:
+        </p>
+
+
+        <div
+            id="roomCodeBig"
+            class="room-code"
+        >
+            ------
+        </div>
+
+
+        <button
+            id="copyButton"
+            class="small"
+        >
+            Copy Code
+        </button>
+
+
+        <div class="players-box">
+
+            <div class="players-title">
+
+                <span>
+                    Players
+                </span>
+
+                <span id="playerCount">
+                    0/12
+                </span>
+
+            </div>
+
+
+            <ul id="playersList"></ul>
 
         </div>
 
-        <div id="room" class="hidden">
 
-            <h2>Room: <span id="displayCode"></span></h2>
+        <p
+            id="hostHint"
+            class="hint"
+        ></p>
 
-            <p>Share this code with your friends:</p>
 
-            <div class="code" id="bigCode"></div>
+        <button
+            id="startButton"
+            class="primary hidden"
+        >
+            Start Game
+        </button>
 
-            <h3>Players</h3>
 
-            <ul id="players"></ul>
+        <button
+            id="leaveButton"
+            class="secondary"
+        >
+            Leave Room
+        </button>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- QUESTION / ANSWER -->
+    <!-- ========================= -->
+
+    <section
+        id="questionView"
+        class="view hidden"
+    >
+
+        <div class="eyebrow">
+            YOUR SECRET QUESTION
+        </div>
+
+
+        <h1 id="questionTitle">
+            Your question
+        </h1>
+
+
+        <div class="question-card">
+
+            <p id="questionText"></p>
 
         </div>
 
-        <p id="message"></p>
 
-    </div>
+        <p class="warning">
+            Keep your question secret.
+        </p>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
+
+        <label for="answerInput">
+            Your answer
+        </label>
+
+
+        <textarea
+            id="answerInput"
+            maxlength="300"
+            placeholder="Type your answer..."
+        ></textarea>
+
+
+        <button
+            id="submitAnswerButton"
+            class="primary"
+        >
+            Submit Answer
+        </button>
+
+
+        <div
+            id="answerStatus"
+            class="waiting-box hidden"
+        >
+
+            <strong>
+                Answer submitted!
+            </strong>
+
+            <span id="answerProgress">
+                Waiting for everyone else...
+            </span>
+
+        </div>
+
+
+        <button
+            id="leaveDuringGameButton"
+            class="secondary"
+        >
+            Leave Room
+        </button>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- VOTING -->
+    <!-- ========================= -->
+
+    <section
+        id="votingView"
+        class="view hidden"
+    >
+
+        <div class="eyebrow">
+            EVERYONE HAS ANSWERED
+        </div>
+
+
+        <h1>
+            Find the Imposter
+        </h1>
+
+
+        <p>
+            Read everyone's answers and
+            choose who you think received
+            the different question.
+        </p>
+
+
+        <div
+            id="answersList"
+            class="answers-list"
+        ></div>
+
+
+        <div
+            id="voteProgress"
+            class="waiting-box"
+        >
+            0 / 0 players have voted
+        </div>
+
+
+        <button
+            id="leaveVotingButton"
+            class="secondary"
+        >
+            Leave Room
+        </button>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- RESULT -->
+    <!-- ========================= -->
+
+    <section
+        id="resultView"
+        class="view hidden"
+    >
+
+        <div class="eyebrow">
+            ROUND COMPLETE
+        </div>
+
+
+        <h1>
+            Results
+        </h1>
+
+
+        <div class="result-card">
+
+            <p class="result-label">
+                The real question was:
+            </p>
+
+
+            <p
+                id="realQuestion"
+                class="result-question"
+            ></p>
+
+
+            <p class="result-label">
+                The imposter was:
+            </p>
+
+
+            <p
+                id="imposterName"
+                class="imposter-name"
+            ></p>
+
+        </div>
+
+
+        <h2>
+            Votes
+        </h2>
+
+
+        <div
+            id="finalVotesList"
+            class="final-votes"
+        ></div>
+
+
+        <button
+            id="playAgainButton"
+            class="primary hidden"
+        >
+            Play Again
+        </button>
+
+
+        <p
+            id="waitingForAgain"
+            class="hint"
+        ></p>
+
+
+        <button
+            id="leaveAfterGameButton"
+            class="secondary"
+        >
+            Leave Room
+        </button>
+
+    </section>
+
+
+</main>
+
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="script.js"></script>
 
 </body>
+
 </html>
