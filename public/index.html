@@ -1,405 +1,1395 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Imposter Game</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imposter — Pass the Phone</title>
+  <style>
+    :root {
+      --bg: #101827;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #687386;
+      --line: #e4e8ef;
+      --accent: #2838a8;
+      --accent-hover: #1e2c8c;
+      --danger: #c62828;
+      --soft: #f4f6fb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 22px 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #26395e 0, var(--bg) 58%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .app { width: 100%; max-width: 570px; }
+    .brand { color: #fff; text-align: center; margin: 0 0 18px; }
+    .brand .logo { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; opacity: .78; font-weight: 800; }
+    .brand h1 { margin: 8px 0 5px; font-size: clamp(29px, 6vw, 40px); }
+    .brand p { margin: 0; color: #d6deed; font-size: 15px; }
+    .screen {
+      background: var(--panel);
+      border-radius: 22px;
+      padding: clamp(22px, 5vw, 34px);
+      box-shadow: 0 18px 55px rgba(0,0,0,.27);
+    }
+    .hidden { display: none !important; }
+    .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    h2 { margin: 0 0 12px; font-size: clamp(25px, 5vw, 32px); line-height: 1.15; }
+    p { line-height: 1.55; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    label { display: block; font-weight: 800; margin: 18px 0 8px; }
+    input[type="number"] {
+      width: 100%; padding: 14px 15px; font: inherit; font-size: 18px;
+      border: 1px solid #cfd6e2; border-radius: 12px; background: white;
+    }
+    .help { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+    button {
+      width: 100%; border: 0; border-radius: 12px; padding: 15px 18px;
+      margin-top: 14px; background: var(--accent); color: #fff; font: inherit;
+      font-size: 16px; font-weight: 800; cursor: pointer; transition: background .15s, transform .15s;
+    }
+    button:hover { background: var(--accent-hover); }
+    button:active { transform: scale(.99); }
+    button.secondary { background: var(--soft); color: var(--text); border: 1px solid var(--line); }
+    button.secondary:hover { background: #e9edf6; }
+    .question-box {
+      padding: 24px 20px; border: 1px solid var(--line); background: var(--soft);
+      border-radius: 16px; font-size: clamp(23px, 5vw, 30px); line-height: 1.35;
+      font-weight: 800; margin: 22px 0 14px; overflow-wrap: anywhere;
+    }
+    .privacy { background: #fff7e6; color: #7b4c00; padding: 12px 14px; border-radius: 10px; font-size: 14px; margin: 18px 0 0; }
+    .pass-number { font-size: clamp(52px, 12vw, 76px); line-height: 1; color: var(--accent); font-weight: 900; text-align: center; margin: 24px 0 12px; }
+    .pass-copy { text-align: center; color: var(--muted); }
+    .progress { text-align: center; font-size: 13px; color: var(--muted); margin: 16px 0 0; }
+    .result-label { color: var(--muted); font-weight: 800; margin-bottom: 8px; }
+    .result-question { background: var(--soft); padding: 20px; border-radius: 14px; border: 1px solid var(--line); font-size: 22px; line-height: 1.4; font-weight: 800; }
+    .imposter-result { margin-top: 24px; padding: 18px 20px; border-radius: 14px; background: #fff0f0; border: 1px solid #ffd6d6; }
+    .imposter-result .name { color: var(--danger); font-size: 28px; font-weight: 900; margin: 6px 0 0; }
+    .error { color: var(--danger); min-height: 20px; font-weight: 700; margin: 10px 0 0; font-size: 14px; }
+    .footnote { text-align: center; color: #d6deed; font-size: 12px; margin: 16px 0 0; }
+    .vote-options { display: grid; gap: 10px; margin: 20px 0; }
+    .vote-option { margin: 0; text-align: left; background: var(--soft); color: var(--text); border: 2px solid var(--line); }
+    .vote-option.selected { border-color: var(--accent); background: #e9edff; box-shadow: 0 0 0 2px rgba(40,56,168,.12); }
+    .vote-option:disabled { opacity: .4; cursor: not-allowed; }
+    .vote-note { color: var(--muted); font-size: 13px; margin: 8px 0; }
+    .vote-results { display: grid; gap: 10px; margin: 18px 0; }
+    .vote-result-row { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fff; }
+    .vote-result-top { display: flex; justify-content: space-between; gap: 12px; font-weight: 800; }
+    .vote-result-voters { margin-top: 7px; color: var(--muted); font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+    @media (max-width: 430px) { body { padding: 14px 10px; align-items: flex-start; } .brand { margin-top: 14px; } .screen { border-radius: 17px; } }
+  </style>
 </head>
-
-
 <body>
-
-<main class="container">
-
-
-    <!-- MESSAGE -->
-
-    <div
-        id="message"
-        class="message"
-    ></div>
-
-
-    <!-- ========================= -->
-    <!-- HOME -->
-    <!-- ========================= -->
-
-    <section
-        id="homeView"
-        class="view"
-    >
-
-        <div class="eyebrow">
-            ONLINE MULTIPLAYER
-        </div>
-
-        <h1>
-            Imposter Game
-        </h1>
-
-        <p class="subtitle">
-            Answer the question.
-            Find the imposter.
-        </p>
-
-
-        <label for="nameInput">
-            Your name
-        </label>
-
-        <input
-            id="nameInput"
-            type="text"
-            maxlength="20"
-            placeholder="Enter your name"
-        >
-
-
-        <button
-            id="createButton"
-            class="primary"
-        >
-            Create Room
-        </button>
-
-
-        <div class="divider">
-            OR
-        </div>
-
-
-        <label for="roomCodeInput">
-            Room code
-        </label>
-
-        <input
-            id="roomCodeInput"
-            type="text"
-            maxlength="6"
-            placeholder="ABC123"
-        >
-
-
-        <button
-            id="joinButton"
-        >
-            Join Room
-        </button>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- LOBBY -->
-    <!-- ========================= -->
-
-    <section
-        id="lobbyView"
-        class="view hidden"
-    >
-
-        <div class="eyebrow">
-            LOBBY
-        </div>
-
-        <h1>
-            Room
-            <span id="roomCodeLabel"></span>
-        </h1>
-
-
-        <p>
-            Share this code with your friends:
-        </p>
-
-
-        <div
-            id="roomCodeBig"
-            class="room-code"
-        >
-            ------
-        </div>
-
-
-        <button
-            id="copyButton"
-            class="small"
-        >
-            Copy Code
-        </button>
-
-
-        <div class="players-box">
-
-            <div class="players-title">
-
-                <span>
-                    Players
-                </span>
-
-                <span id="playerCount">
-                    0/12
-                </span>
-
-            </div>
-
-
-            <ul id="playersList"></ul>
-
-        </div>
-
-
-        <p
-            id="hostHint"
-            class="hint"
-        ></p>
-
-
-        <button
-            id="startButton"
-            class="primary hidden"
-        >
-            Start Game
-        </button>
-
-
-        <button
-            id="leaveButton"
-            class="secondary"
-        >
-            Leave Room
-        </button>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- QUESTION / ANSWER -->
-    <!-- ========================= -->
-
-    <section
-        id="questionView"
-        class="view hidden"
-    >
-
-        <div class="eyebrow">
-            YOUR SECRET QUESTION
-        </div>
-
-
-        <h1 id="questionTitle">
-            Your question
-        </h1>
-
-
-        <div class="question-card">
-
-            <p id="questionText"></p>
-
-        </div>
-
-
-        <p class="warning">
-            Keep your question secret.
-        </p>
-
-
-        <label for="answerInput">
-            Your answer
-        </label>
-
-
-        <textarea
-            id="answerInput"
-            maxlength="300"
-            placeholder="Type your answer..."
-        ></textarea>
-
-
-        <button
-            id="submitAnswerButton"
-            class="primary"
-        >
-            Submit Answer
-        </button>
-
-
-        <div
-            id="answerStatus"
-            class="waiting-box hidden"
-        >
-
-            <strong>
-                Answer submitted!
-            </strong>
-
-            <span id="answerProgress">
-                Waiting for everyone else...
-            </span>
-
-        </div>
-
-
-        <button
-            id="leaveDuringGameButton"
-            class="secondary"
-        >
-            Leave Room
-        </button>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- VOTING -->
-    <!-- ========================= -->
-
-    <section
-        id="votingView"
-        class="view hidden"
-    >
-
-        <div class="eyebrow">
-            EVERYONE HAS ANSWERED
-        </div>
-
-
-        <h1>
-            Find the Imposter
-        </h1>
-
-
-        <p>
-            Read everyone's answers and
-            choose who you think received
-            the different question.
-        </p>
-
-
-        <div
-            id="answersList"
-            class="answers-list"
-        ></div>
-
-
-        <div
-            id="voteProgress"
-            class="waiting-box"
-        >
-            0 / 0 players have voted
-        </div>
-
-
-        <button
-            id="leaveVotingButton"
-            class="secondary"
-        >
-            Leave Room
-        </button>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- RESULT -->
-    <!-- ========================= -->
-
-    <section
-        id="resultView"
-        class="view hidden"
-    >
-
-        <div class="eyebrow">
-            ROUND COMPLETE
-        </div>
-
-
-        <h1>
-            Results
-        </h1>
-
-
-        <div class="result-card">
-
-            <p class="result-label">
-                The real question was:
-            </p>
-
-
-            <p
-                id="realQuestion"
-                class="result-question"
-            ></p>
-
-
-            <p class="result-label">
-                The imposter was:
-            </p>
-
-
-            <p
-                id="imposterName"
-                class="imposter-name"
-            ></p>
-
-        </div>
-
-
-        <h2>
-            Votes
-        </h2>
-
-
-        <div
-            id="finalVotesList"
-            class="final-votes"
-        ></div>
-
-
-        <button
-            id="playAgainButton"
-            class="primary hidden"
-        >
-            Play Again
-        </button>
-
-
-        <p
-            id="waitingForAgain"
-            class="hint"
-        ></p>
-
-
-        <button
-            id="leaveAfterGameButton"
-            class="secondary"
-        >
-            Leave Room
-        </button>
-
-    </section>
-
-
-</main>
-
-
-<script src="/socket.io/socket.io.js"></script>
-
-<script src="script.js"></script>
-
+  <div class="app">
+    <header class="brand">
+      <div class="logo">Pass the phone</div>
+      <h1>Imposter</h1>
+      <p>One device. Secret questions. One imposter.</p>
+    </header>
+
+    <main>
+      <section id="setupScreen" class="screen">
+        <div class="eyebrow">New round</div>
+        <h2>How many players?</h2>
+        <p class="sub">Choose the number of people playing. Each prompt has an open-ended, text-style answer. Pass the same device around so everyone sees only their own question.</p>
+        <label for="playerCount">Number of players</label>
+        <input id="playerCount" type="number" min="3" max="20" value="4" step="1">
+        <p class="help">Choose between 3 and 20 players.</p>
+        <p id="setupError" class="error" aria-live="polite"></p>
+        <button id="startButton">Start game</button>
+        <p class="help">This version runs locally in one browser. No room code or internet connection is needed.</p>
+      </section>
+
+      <section id="questionScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow" id="playerEyebrow">Player 1</div>
+        <h2 id="questionHeading">Player 1, read your question</h2>
+        <p class="sub">Read it carefully, remember it, and keep it secret.</p>
+        <div id="questionText" class="question-box"></div>
+        <p class="privacy">🔒 Keep the screen to yourself. Don't let the next player see your question.</p>
+        <button id="nextButton">Next</button>
+        <p id="questionProgress" class="progress"></p>
+      </section>
+
+      <section id="passScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow">Pass the device</div>
+        <h2 id="passHeading">Pass the device to Player 2</h2>
+        <div id="passPlayerNumber" class="pass-number">2</div>
+        <p id="passCopy" class="pass-copy">Hand the device to the next player. Make sure the previous question is no longer visible.</p>
+        <button id="showQuestionButton">Next — show my question</button>
+      </section>
+
+      <section id="discussionScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow">All players have seen their questions</div>
+        <h2>Discuss!</h2>
+        <p class="sub">Everyone should give their answer aloud. Discuss the answers and try to work out who received a different question.</p>
+        <button id="revealAnswerButton">Next — reveal the real question</button>
+      </section>
+
+      <section id="resultScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow">Real question revealed</div>
+        <h2>The real question was…</h2>
+        <div id="realQuestionText" class="result-question"></div>
+        <p class="sub" style="margin-top: 18px;">Now pass the device around so everyone can secretly vote for the person they think received the different question.</p>
+        <button id="startVotingButton">Next — start voting</button>
+      </section>
+
+      <section id="votingScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow">Secret vote</div>
+        <h2 id="votingHeading">Player 1, who is the imposter?</h2>
+        <p class="sub">Choose one other player. Your choice will stay hidden until everyone has voted.</p>
+        <div id="voteOptions" class="vote-options"></div>
+        <p id="voteError" class="error" aria-live="polite"></p>
+        <button id="submitVoteButton" disabled>Submit vote</button>
+      </section>
+
+      <section id="voteResultsScreen" class="screen hidden" aria-live="polite">
+        <div class="eyebrow">Everyone has voted</div>
+        <h2>Vote results</h2>
+        <p class="sub">Here is how the votes were distributed. The game does not reveal the imposter's identity.</p>
+        <div id="voteResultsList" class="vote-results"></div>
+        <button id="playAgainButton">Play again</button>
+        <button id="changePlayersButton" class="secondary">Change number of players</button>
+      </section>
+    </main>
+    <p class="footnote">Locally played on one device — questions are hidden by passing the screen.</p>
+  </div>
+
+  <script>
+const questions = [
+    {
+        real: "Name a person you'd take on a spontaneous road trip.",
+        imposter: "Name a person you'd expect to recognise your voice immediately."
+    },
+    {
+        real: "Name a person you'd ask to take a photo of you on holiday.",
+        imposter: "Name a person you'd expect to notice if you changed your hairstyle."
+    },
+    {
+        real: "Name a person you'd choose to sit beside at a wedding.",
+        imposter: "Name a person you'd expect to be memorable at a wedding."
+    },
+    {
+        real: "Name a person you'd invite to a late-night takeaway.",
+        imposter: "Name a person you'd expect to stay awake until sunrise."
+    },
+    {
+        real: "Name a person you'd want on your team for a school quiz.",
+        imposter: "Name a person you'd expect to know a bizarre amount about one random topic."
+    },
+    {
+        real: "Name a person you'd call if you accidentally locked yourself out.",
+        imposter: "Name a person you'd expect to still have a spare key somewhere."
+    },
+    {
+        real: "Name a person you'd choose to plan a birthday day out with.",
+        imposter: "Name a person you'd expect to have an unusual birthday tradition."
+    },
+    {
+        real: "Name a person you'd want beside you on a long train journey.",
+        imposter: "Name a person you'd expect to start a conversation with a stranger on a train."
+    },
+    {
+        real: "Name a person you'd ask for a recommendation for a new show.",
+        imposter: "Name a person you'd expect to have watched something nobody else has heard of."
+    },
+    {
+        real: "Name a person you'd invite to a barbecue.",
+        imposter: "Name a person you'd expect to arrive carrying something nobody asked for."
+    },
+    {
+        real: "Name a person you'd ask to choose the snacks for movie night.",
+        imposter: "Name a person you'd expect to finish the snacks before the film starts."
+    },
+    {
+        real: "Name a person you'd choose to be your partner in an escape room.",
+        imposter: "Name a person you'd expect to get distracted by a completely unnecessary clue."
+    },
+    {
+        real: "Name a person you'd want helping you pack for a holiday.",
+        imposter: "Name a person you'd expect to forget something on a holiday."
+    },
+    {
+        real: "Name a person you'd choose to sit next to at a concert.",
+        imposter: "Name a person you'd expect to know every word to the songs."
+    },
+    {
+        real: "Name a person you'd ask to help decorate a room.",
+        imposter: "Name a person you'd expect to turn decorating into a competition."
+    },
+    {
+        real: "Name a person you'd choose to be with on a rainy day with no plans.",
+        imposter: "Name a person you'd expect to suggest something completely random to do."
+    },
+    {
+        real: "Name a person you'd ask to pick a restaurant for your group.",
+        imposter: "Name a person you'd expect to order the strangest thing on the menu."
+    },
+    {
+        real: "Name a person you'd want on a beach day.",
+        imposter: "Name a person you'd expect to go swimming first."
+    },
+    {
+        real: "Name a person you'd invite on a camping trip.",
+        imposter: "Name a person you'd expect to bring far too much equipment."
+    },
+    {
+        real: "Name a person you'd ask to help choose a gift.",
+        imposter: "Name a person you'd expect to remember everyone's birthdays."
+    },
+    {
+        real: "Name a person you'd choose to sit beside on a coach journey.",
+        imposter: "Name a person you'd expect to fall asleep within ten minutes of the journey."
+    },
+    {
+        real: "Name a person you'd want to meet for breakfast.",
+        imposter: "Name a person you'd expect to order something completely different from everyone else."
+    },
+    {
+        real: "Name a person you'd choose for a team photo.",
+        imposter: "Name a person you'd expect to make everyone laugh while taking it."
+    },
+    {
+        real: "Name a person you'd call first with surprisingly good news.",
+        imposter: "Name a person you'd expect to ask a hundred questions about it."
+    },
+    {
+        real: "Name a person you'd choose to help you move house.",
+        imposter: "Name a person you'd expect to find a forgotten box from years ago in the process."
+    },
+    {
+        real: "Name something you'd pack first for a weekend away.",
+        imposter: "Name something you'd be annoyed to discover was missing from your room."
+    },
+    {
+        real: "Name something you'd put on your bedside table.",
+        imposter: "Name something you'd notice immediately if it disappeared from your desk."
+    },
+    {
+        real: "Name something you'd keep in your school or work bag.",
+        imposter: "Name something you'd worry about leaving behind in a café."
+    },
+    {
+        real: "Name something you'd bring to a picnic.",
+        imposter: "Name something you'd accidentally leave in the car after a picnic."
+    },
+    {
+        real: "Name something you'd take to a theme park.",
+        imposter: "Name something you'd regret carrying around a theme park all day."
+    },
+    {
+        real: "Name something you'd want in a hotel room.",
+        imposter: "Name something you'd be surprised to find in a hotel room."
+    },
+    {
+        real: "Name something you'd keep in your car.",
+        imposter: "Name something you'd notice if you suddenly couldn't find it in your car."
+    },
+    {
+        real: "Name something you'd put in a time capsule.",
+        imposter: "Name something you'd hope someone would recognise in a time capsule years later."
+    },
+    {
+        real: "Name something you'd take to a deserted island.",
+        imposter: "Name something you'd hate to discover was the only thing in your suitcase."
+    },
+    {
+        real: "Name something you'd bring to a sleepover.",
+        imposter: "Name something you'd realise you had forgotten when everyone was already asleep."
+    },
+    {
+        real: "Name something you'd put on a birthday wishlist.",
+        imposter: "Name something you'd be disappointed to unwrap at your birthday."
+    },
+    {
+        real: "Name something you'd keep even if it had no practical use.",
+        imposter: "Name something you'd be tempted to throw away during a big clear-out."
+    },
+    {
+        real: "Name something you'd display on a shelf.",
+        imposter: "Name something you'd accidentally knock off that shelf."
+    },
+    {
+        real: "Name something you'd want beside you during a long journey.",
+        imposter: "Name something you'd be annoyed to hear making noise during a long journey."
+    },
+    {
+        real: "Name something you'd take to a concert.",
+        imposter: "Name something you'd realise you should have left at home before entering the venue."
+    },
+    {
+        real: "Name something you'd put in a lunchbox.",
+        imposter: "Name something you'd hate to discover had leaked inside your bag."
+    },
+    {
+        real: "Name something you'd buy for a new bedroom.",
+        imposter: "Name something you'd probably forget to measure before buying for a new bedroom."
+    },
+    {
+        real: "Name something you'd want near a sofa.",
+        imposter: "Name something that would be extremely inconvenient to find under your sofa."
+    },
+    {
+        real: "Name something you'd take to a sleepover at a friend's house.",
+        imposter: "Name something you'd panic about leaving at a friend's house."
+    },
+    {
+        real: "Name something you'd keep next to your computer.",
+        imposter: "Name something you'd notice if it stopped working while you were busy."
+    },
+    {
+        real: "Name something you'd take to the beach.",
+        imposter: "Name something you'd hate to get covered in sand at the beach."
+    },
+    {
+        real: "Name something you'd keep in a coat pocket.",
+        imposter: "Name something you'd be confused to find in your coat pocket."
+    },
+    {
+        real: "Name something you'd want in a survival kit.",
+        imposter: "Name something you'd be surprised to see included in a survival kit."
+    },
+    {
+        real: "Name something you'd bring to a house party.",
+        imposter: "Name something you'd regret bringing if nobody used it."
+    },
+    {
+        real: "Name something you'd keep in a drawer for years.",
+        imposter: "Name something you'd rediscover while cleaning a drawer."
+    },
+    {
+        real: "Name a place you'd choose for a first date.",
+        imposter: "Name a place you'd expect to have a surprisingly long queue."
+    },
+    {
+        real: "Name a place you'd spend a free afternoon.",
+        imposter: "Name a place you'd expect to hear someone arguing."
+    },
+    {
+        real: "Name a place you'd love to wake up tomorrow.",
+        imposter: "Name a place you'd find very strange to wake up tomorrow."
+    },
+    {
+        real: "Name a place you'd choose for a birthday.",
+        imposter: "Name a place you'd never expect to find a birthday cake."
+    },
+    {
+        real: "Name a place you'd go to clear your head.",
+        imposter: "Name a place where you think you'd accidentally lose track of time."
+    },
+    {
+        real: "Name a place you'd take a visiting friend.",
+        imposter: "Name a place you'd expect your friend to remember afterwards."
+    },
+    {
+        real: "Name a place you'd happily spend an entire day.",
+        imposter: "Name a place where an hour would probably feel very long."
+    },
+    {
+        real: "Name a place you'd go for a great view.",
+        imposter: "Name a place where you'd expect the view to be completely different at night."
+    },
+    {
+        real: "Name a place you'd choose for a picnic.",
+        imposter: "Name a place where a picnic would be unexpectedly difficult."
+    },
+    {
+        real: "Name a place you'd visit on a rainy day.",
+        imposter: "Name a place you'd be surprised to enjoy in bad weather."
+    },
+    {
+        real: "Name a place you'd go if you wanted to be surrounded by people.",
+        imposter: "Name a place where you'd expect to recognise somebody you know."
+    },
+    {
+        real: "Name a place you'd choose for a weekend away.",
+        imposter: "Name a place you'd expect to have unusual opening hours."
+    },
+    {
+        real: "Name a place you'd explore with a free afternoon.",
+        imposter: "Name a place you'd expect to find something you weren't looking for."
+    },
+    {
+        real: "Name a place you'd love to visit at night.",
+        imposter: "Name a place you'd rather visit early in the morning."
+    },
+    {
+        real: "Name a place you'd choose for a group photo.",
+        imposter: "Name a place where you'd expect a group photo to be difficult."
+    },
+    {
+        real: "Name a place you'd go for your favourite dessert.",
+        imposter: "Name a place where you'd expect dessert to be served in a strange way."
+    },
+    {
+        real: "Name a place you'd choose to study.",
+        imposter: "Name a place where you'd be distracted almost immediately."
+    },
+    {
+        real: "Name a place you'd go if you had an unexpected day off.",
+        imposter: "Name a place where you would probably spend more money than planned."
+    },
+    {
+        real: "Name a place you'd choose to watch a match.",
+        imposter: "Name a place where you'd expect the atmosphere to be louder than the match itself."
+    },
+    {
+        real: "Name a place you'd take someone who had never visited your town.",
+        imposter: "Name a place a visitor might find unexpectedly interesting."
+    },
+    {
+        real: "Name a place you'd want to spend Christmas.",
+        imposter: "Name a place where Christmas would feel completely different."
+    },
+    {
+        real: "Name a place you'd go if you wanted to find inspiration.",
+        imposter: "Name a place where you'd expect to see something unusual."
+    },
+    {
+        real: "Name a place you'd choose for a quiet meal.",
+        imposter: "Name a place where you'd expect a very noisy table nearby."
+    },
+    {
+        real: "Name a place you'd go when you wanted to browse without buying anything.",
+        imposter: "Name a place where you'd accidentally leave with something anyway."
+    },
+    {
+        real: "Name a place you'd choose to spend the final evening of a holiday.",
+        imposter: "Name a place where you'd expect to remember the final evening for a long time."
+    },
+    {
+        real: "Name a film you'd put on when you don't know what else to watch.",
+        imposter: "Name a film you'd recognise from a single screenshot."
+    },
+    {
+        real: "Name a film you'd show to someone who says they hate films.",
+        imposter: "Name a film you'd find difficult to explain without spoiling it."
+    },
+    {
+        real: "Name a TV show you'd binge over a weekend.",
+        imposter: "Name a TV show you'd accidentally watch while doing something else."
+    },
+    {
+        real: "Name a song you'd play to lift the mood.",
+        imposter: "Name a song you'd recognise from the first two seconds."
+    },
+    {
+        real: "Name a song you'd choose for a road trip.",
+        imposter: "Name a song you'd expect everyone in the car to sing along to."
+    },
+    {
+        real: "Name a film you'd watch on a plane.",
+        imposter: "Name a film you'd rather not watch on a plane."
+    },
+    {
+        real: "Name a TV character you'd invite to dinner.",
+        imposter: "Name a TV character you'd expect to dominate the conversation."
+    },
+    {
+        real: "Name a film you'd rewatch for the soundtrack.",
+        imposter: "Name a film you'd remember mainly for one scene."
+    },
+    {
+        real: "Name a song you'd put on at the end of a party.",
+        imposter: "Name a song you'd be surprised to hear at a wedding."
+    },
+    {
+        real: "Name a show you'd recommend to your best friend.",
+        imposter: "Name a show you'd be curious to see someone else react to."
+    },
+    {
+        real: "Name a film you'd watch on a lazy Sunday.",
+        imposter: "Name a film you'd expect to make everyone stay awake."
+    },
+    {
+        real: "Name a song you'd choose for karaoke.",
+        imposter: "Name a song you'd expect to hear in a pub at closing time."
+    },
+    {
+        real: "Name a TV show you'd watch with your family.",
+        imposter: "Name a TV show you'd be awkward watching with your family."
+    },
+    {
+        real: "Name a film you'd watch with no idea what it was about.",
+        imposter: "Name a film whose title would make you curious immediately."
+    },
+    {
+        real: "Name a song that belongs on a party playlist.",
+        imposter: "Name a song that would make you check who made the playlist."
+    },
+    {
+        real: "Name a film you'd take on a long train journey.",
+        imposter: "Name a film that would make a long train journey feel shorter."
+    },
+    {
+        real: "Name a TV show you'd start again from episode one.",
+        imposter: "Name a TV show you'd expect to discover something new on a second watch."
+    },
+    {
+        real: "Name a film you'd put on after a bad day.",
+        imposter: "Name a film that would probably remind you of a specific person."
+    },
+    {
+        real: "Name a song you'd associate with summer.",
+        imposter: "Name a song you'd associate with a late-night drive."
+    },
+    {
+        real: "Name a film you'd choose for a group movie night.",
+        imposter: "Name a film you'd expect the group to argue about afterwards."
+    },
+    {
+        real: "Name a song you'd never skip when it comes on.",
+        imposter: "Name a song you'd expect people to sing even if they didn't know all the words."
+    },
+    {
+        real: "Name a TV show you'd watch if you had one free hour.",
+        imposter: "Name a TV show you'd accidentally turn into a three-hour session."
+    },
+    {
+        real: "Name a film you'd recommend because of its ending.",
+        imposter: "Name a film you'd recommend because of its opening scene."
+    },
+    {
+        real: "Name a song you'd choose for a dramatic entrance.",
+        imposter: "Name a song you'd choose for a dramatic exit."
+    },
+    {
+        real: "Name a film you'd like to see on a huge cinema screen.",
+        imposter: "Name a film you'd probably quote afterwards."
+    },
+    {
+        real: "Name a food you'd happily eat after midnight.",
+        imposter: "Name a food you'd expect to smell immediately when you walk into a kitchen."
+    },
+    {
+        real: "Name a food you'd take on a road trip.",
+        imposter: "Name a food you'd regret keeping in a hot car."
+    },
+    {
+        real: "Name a food you'd order at a celebration.",
+        imposter: "Name a food you'd expect everyone at the table to steal from each other."
+    },
+    {
+        real: "Name a food you'd choose for a lazy Sunday.",
+        imposter: "Name a food you'd associate with a busy morning."
+    },
+    {
+        real: "Name a food you'd want at a picnic.",
+        imposter: "Name a food you'd find awkward to eat at a picnic."
+    },
+    {
+        real: "Name a food you'd try at a street market.",
+        imposter: "Name a food you'd be curious to see turned into street food."
+    },
+    {
+        real: "Name a dessert you'd order first if the menu allowed it.",
+        imposter: "Name a dessert you'd expect to arrive looking completely different from the picture."
+    },
+    {
+        real: "Name a snack you'd keep in your room.",
+        imposter: "Name a snack you'd expect to disappear from your room without you noticing."
+    },
+    {
+        real: "Name a drink you'd order with a special meal.",
+        imposter: "Name a drink you'd associate with a very early morning."
+    },
+    {
+        real: "Name a food you'd cook for friends.",
+        imposter: "Name a food you'd rather someone else cooked for you."
+    },
+    {
+        real: "Name a food you'd choose for a movie night.",
+        imposter: "Name a food you'd be annoyed to hear crunching during a movie."
+    },
+    {
+        real: "Name a food you'd bring to a party.",
+        imposter: "Name a food you'd expect to be finished first at a party."
+    },
+    {
+        real: "Name a food you'd eat on a beach day.",
+        imposter: "Name a food you'd regret bringing to the beach because of the heat."
+    },
+    {
+        real: "Name a food you'd put on a dream breakfast menu.",
+        imposter: "Name a food you'd find strange to see served at breakfast."
+    },
+    {
+        real: "Name a food you'd order if you were extremely hungry.",
+        imposter: "Name a food you'd expect to be surprisingly filling."
+    },
+    {
+        real: "Name a food you'd choose for a first date.",
+        imposter: "Name a food you'd find awkward to eat on a first date."
+    },
+    {
+        real: "Name a food you'd want in a packed lunch.",
+        imposter: "Name a food you'd hate to open in a silent classroom."
+    },
+    {
+        real: "Name a food you'd choose at a fair.",
+        imposter: "Name a food you'd expect to have way too much sugar at a fair."
+    },
+    {
+        real: "Name a food you'd want at a barbecue.",
+        imposter: "Name a food you'd expect someone to accidentally burn at a barbecue."
+    },
+    {
+        real: "Name a food you'd order if you had a free meal.",
+        imposter: "Name a food you'd be willing to travel to another city to try."
+    },
+    {
+        real: "Name a food you'd associate with winter.",
+        imposter: "Name a food you'd associate with a very hot day."
+    },
+    {
+        real: "Name a food you'd keep as a quick emergency meal.",
+        imposter: "Name a food you'd expect to take the longest to prepare."
+    },
+    {
+        real: "Name a food you'd want to learn to cook perfectly.",
+        imposter: "Name a food you'd expect to require far more ingredients than it should."
+    },
+    {
+        real: "Name a food you'd choose for a huge family dinner.",
+        imposter: "Name a food you'd expect to cause the most debate about how it should be cooked."
+    },
+    {
+        real: "Name a food you'd be happy to see on a hotel breakfast buffet.",
+        imposter: "Name a food you'd be surprised to see on a hotel breakfast buffet."
+    },
+    {
+        real: "Name an activity you'd do on a completely free day.",
+        imposter: "Name an activity you'd expect to become competitive surprisingly quickly."
+    },
+    {
+        real: "Name an activity you'd try on holiday.",
+        imposter: "Name an activity you'd expect to leave you covered in mud."
+    },
+    {
+        real: "Name an activity you'd do with friends on a rainy day.",
+        imposter: "Name an activity you'd expect everyone to argue over the rules for."
+    },
+    {
+        real: "Name an activity you'd like to get better at.",
+        imposter: "Name an activity you'd expect to be harder than it looks."
+    },
+    {
+        real: "Name an activity you'd choose for a first hangout with someone.",
+        imposter: "Name an activity that would make an awkward silence much less awkward."
+    },
+    {
+        real: "Name an activity you'd do if your phone battery died.",
+        imposter: "Name an activity you'd forget you enjoyed until you had no internet."
+    },
+    {
+        real: "Name an activity you'd choose for a Sunday morning.",
+        imposter: "Name an activity you'd regret starting if you were already tired."
+    },
+    {
+        real: "Name an activity you'd include in a perfect weekend.",
+        imposter: "Name an activity you'd expect to lose track of time doing."
+    },
+    {
+        real: "Name an activity you'd do at a sleepover.",
+        imposter: "Name an activity you'd expect everyone to get louder at as the night goes on."
+    },
+    {
+        real: "Name an activity you'd try once just for the experience.",
+        imposter: "Name an activity you'd expect to be surprisingly addictive."
+    },
+    {
+        real: "Name an activity you'd choose for a group competition.",
+        imposter: "Name an activity where one tiny mistake could become very funny."
+    },
+    {
+        real: "Name an activity you'd do outdoors in summer.",
+        imposter: "Name an activity you'd still enjoy even if the weather changed suddenly."
+    },
+    {
+        real: "Name an activity you'd do before a big night out.",
+        imposter: "Name an activity that would make you late if you started it too late."
+    },
+    {
+        real: "Name an activity you'd choose on a long train journey.",
+        imposter: "Name an activity that would make a long train journey feel shorter."
+    },
+    {
+        real: "Name an activity you'd do when you needed to think.",
+        imposter: "Name an activity you'd find impossible to do while distracted."
+    },
+    {
+        real: "Name an activity you'd recommend to someone feeling bored.",
+        imposter: "Name an activity you'd expect them to keep doing after the boredom disappeared."
+    },
+    {
+        real: "Name an activity you'd do with a younger sibling.",
+        imposter: "Name an activity you'd expect them to beat you at."
+    },
+    {
+        real: "Name an activity you'd do with a grandparent.",
+        imposter: "Name an activity you'd expect to hear a funny story during."
+    },
+    {
+        real: "Name an activity you'd choose for a date night.",
+        imposter: "Name an activity you'd expect to reveal how competitive someone is."
+    },
+    {
+        real: "Name an activity you'd do on a holiday morning.",
+        imposter: "Name an activity you'd expect to take longer than planned."
+    },
+    {
+        real: "Name an activity you'd choose if money didn't matter.",
+        imposter: "Name an activity you'd expect to need a reservation for."
+    },
+    {
+        real: "Name an activity you'd do in a city.",
+        imposter: "Name an activity you'd expect to discover by accident while exploring."
+    },
+    {
+        real: "Name an activity you'd choose for a group of strangers.",
+        imposter: "Name an activity that would make everyone learn each other's personalities quickly."
+    },
+    {
+        real: "Name an activity you'd do on your own for an hour.",
+        imposter: "Name an activity you'd be surprised to discover you enjoy alone."
+    },
+    {
+        real: "Name an activity you'd include in your dream birthday.",
+        imposter: "Name an activity you'd expect to become the thing everyone talks about afterwards."
+    },
+    {
+        real: "Name something you'd keep on a school or work desk.",
+        imposter: "Name something you'd be annoyed to spill on a school or work desk."
+    },
+    {
+        real: "Name something you'd take to an exam.",
+        imposter: "Name something you'd hate to realise you'd forgotten before an exam."
+    },
+    {
+        real: "Name something you'd write on a school or work noticeboard.",
+        imposter: "Name something you'd expect people to ignore on a school or work noticeboard."
+    },
+    {
+        real: "Name something you'd put in a presentation.",
+        imposter: "Name something you'd be worried would go wrong during a presentation."
+    },
+    {
+        real: "Name something you'd keep in a pencil case.",
+        imposter: "Name something you'd expect to borrow from someone because you forgot yours."
+    },
+    {
+        real: "Name something you'd bring to a group project.",
+        imposter: "Name something you'd expect someone else in the group to forget."
+    },
+    {
+        real: "Name something you'd put in your work bag.",
+        imposter: "Name something you'd hope not to find broken in your work bag."
+    },
+    {
+        real: "Name something you'd do during a study break.",
+        imposter: "Name something you'd accidentally spend the entire study break doing."
+    },
+    {
+        real: "Name something you'd put on a revision list.",
+        imposter: "Name something you'd be tempted to leave until the last minute."
+    },
+    {
+        real: "Name something you'd want on your first day at a new job.",
+        imposter: "Name something you'd be surprised to be given on your first day at a new job."
+    },
+    {
+        real: "Name something you'd put on a classroom wall.",
+        imposter: "Name something you'd be distracted by on a classroom wall."
+    },
+    {
+        real: "Name something you'd ask a teacher or colleague about.",
+        imposter: "Name something you'd feel awkward bringing up with a teacher or colleague."
+    },
+    {
+        real: "Name something you'd bring to an interview.",
+        imposter: "Name something you'd wish you had checked before an interview."
+    },
+    {
+        real: "Name something you'd use during a long meeting.",
+        imposter: "Name something you'd notice everyone else doing during a long meeting."
+    },
+    {
+        real: "Name something you'd put in a locker.",
+        imposter: "Name something you'd be annoyed to find someone had left in your locker."
+    },
+    {
+        real: "Name something you'd use to organise your week.",
+        imposter: "Name something you'd forget to add to your weekly plan."
+    },
+    {
+        real: "Name something you'd keep for future reference.",
+        imposter: "Name something you'd accidentally delete while clearing old files."
+    },
+    {
+        real: "Name something you'd use to make notes.",
+        imposter: "Name something you'd lose at the exact moment you needed to make notes."
+    },
+    {
+        real: "Name something you'd do before submitting important work.",
+        imposter: "Name something you'd wish you had checked after submitting important work."
+    },
+    {
+        real: "Name something you'd put in a lunch break.",
+        imposter: "Name something you'd be tempted to do instead of returning to work immediately."
+    },
+    {
+        real: "Name something you'd choose for a school or work celebration.",
+        imposter: "Name something you'd expect someone to bring to a school or work celebration without being asked."
+    },
+    {
+        real: "Name something you'd use to wake up before an early start.",
+        imposter: "Name something you'd ignore when you were supposed to be awake."
+    },
+    {
+        real: "Name something you'd keep near your front door.",
+        imposter: "Name something you'd suddenly realise you had left somewhere when you were already outside."
+    },
+    {
+        real: "Name something you'd prepare the night before a busy day.",
+        imposter: "Name something you'd regret not preparing the night before a busy day."
+    },
+    {
+        real: "Name something you'd use to keep track of important dates.",
+        imposter: "Name something you'd forget even though it was written down."
+    },
+    {
+        real: "Name something you'd take on a long flight.",
+        imposter: "Name something you'd hope not to be seated next to on a long flight."
+    },
+    {
+        real: "Name something you'd bring on a train journey.",
+        imposter: "Name something you'd be annoyed to hear repeatedly on a train journey."
+    },
+    {
+        real: "Name something you'd keep in a hotel safe.",
+        imposter: "Name something you'd suddenly worry you had left behind in a hotel room."
+    },
+    {
+        real: "Name something you'd do first after arriving in a new city.",
+        imposter: "Name something you'd expect to spend too much time looking for in a new city."
+    },
+    {
+        real: "Name a vehicle you'd choose for a road trip.",
+        imposter: "Name a vehicle you'd expect to have a very unusual interior."
+    },
+    {
+        real: "Name something you'd pack for a beach holiday.",
+        imposter: "Name something you'd regret packing for a beach holiday."
+    },
+    {
+        real: "Name something you'd want on a campsite.",
+        imposter: "Name something you'd be surprised to discover already waiting on a campsite."
+    },
+    {
+        real: "Name something you'd do at an airport before boarding.",
+        imposter: "Name something you'd be annoyed to realise you had forgotten before boarding."
+    },
+    {
+        real: "Name something you'd look for when choosing a hotel.",
+        imposter: "Name something you'd notice immediately when entering a hotel room."
+    },
+    {
+        real: "Name something you'd want during a delayed journey.",
+        imposter: "Name something you'd find especially annoying during a delayed journey."
+    },
+    {
+        real: "Name something you'd keep in a travel wallet.",
+        imposter: "Name something you'd be worried about losing while travelling."
+    },
+    {
+        real: "Name something you'd buy at an airport.",
+        imposter: "Name something you'd be surprised to see being sold at an airport."
+    },
+    {
+        real: "Name something you'd want in a hire car.",
+        imposter: "Name something you'd want to check before driving a hire car."
+    },
+    {
+        real: "Name something you'd do during a long coach trip.",
+        imposter: "Name something you'd expect to become uncomfortable during a long coach trip."
+    },
+    {
+        real: "Name something you'd take on a city break.",
+        imposter: "Name something you'd regret not bringing on a city break."
+    },
+    {
+        real: "Name something you'd choose for a dream hotel breakfast.",
+        imposter: "Name something you'd expect to find in a strange hotel breakfast."
+    },
+    {
+        real: "Name something you'd do when you first enter a hotel room.",
+        imposter: "Name something you'd immediately notice if it was missing from the room."
+    },
+    {
+        real: "Name something you'd bring on a mountain trip.",
+        imposter: "Name something you'd hope the weather did not ruin on a mountain trip."
+    },
+    {
+        real: "Name something you'd look up before visiting a new country.",
+        imposter: "Name something you'd be surprised to discover was very different there."
+    },
+    {
+        real: "Name something you'd do during a road-trip stop.",
+        imposter: "Name something you'd expect to forget in the car when leaving the stop."
+    },
+    {
+        real: "Name something you'd take onto a ferry.",
+        imposter: "Name something you'd expect to see people carrying onto a ferry."
+    },
+    {
+        real: "Name something you'd buy as a holiday souvenir.",
+        imposter: "Name something you'd find at home and immediately remember a holiday by."
+    },
+    {
+        real: "Name something you'd want on a night train.",
+        imposter: "Name something you'd find difficult to sleep through on a night train."
+    },
+    {
+        real: "Name something you'd choose as a travel companion.",
+        imposter: "Name something you'd expect a travel companion to have strong opinions about."
+    },
+    {
+        real: "Name something you'd check before leaving for the airport.",
+        imposter: "Name something you'd still worry you had forgotten after checking everything."
+    },
+    {
+        real: "Name something you'd put in your dream bedroom.",
+        imposter: "Name something you'd notice first in someone else's bedroom."
+    },
+    {
+        real: "Name something you'd want in a perfect kitchen.",
+        imposter: "Name something you'd expect to be missing from a poorly designed kitchen."
+    },
+    {
+        real: "Name something you'd keep beside a sofa.",
+        imposter: "Name something you'd be annoyed to find underneath a sofa."
+    },
+    {
+        real: "Name something you'd put on a balcony.",
+        imposter: "Name something you'd be surprised to see on a balcony."
+    },
+    {
+        real: "Name something you'd grow in a garden.",
+        imposter: "Name something you'd be annoyed to find growing in your garden."
+    },
+    {
+        real: "Name something you'd keep next to a bed.",
+        imposter: "Name something you'd reach for if you woke up during the night."
+    },
+    {
+        real: "Name something you'd display in a living room.",
+        imposter: "Name something you'd expect guests to comment on in a living room."
+    },
+    {
+        real: "Name something you'd want in a bathroom.",
+        imposter: "Name something you'd hate to discover was broken in a bathroom."
+    },
+    {
+        real: "Name something you'd hear during a storm.",
+        imposter: "Name something you'd be relieved not to hear during a storm."
+    },
+    {
+        real: "Name something you'd take outside on a sunny day.",
+        imposter: "Name something you'd suddenly wish you had during a sunny day."
+    },
+    {
+        real: "Name an animal you'd love to see in the wild.",
+        imposter: "Name an animal you'd be very surprised to see in a garden."
+    },
+    {
+        real: "Name an animal you'd choose to see at a zoo.",
+        imposter: "Name an animal you'd expect to sleep for most of the day."
+    },
+    {
+        real: "Name an animal you'd be happy to see on a farm.",
+        imposter: "Name an animal you'd expect to make an unexpectedly loud noise."
+    },
+    {
+        real: "Name an animal you'd choose as a mascot.",
+        imposter: "Name an animal you'd expect to become a funny mascot."
+    },
+    {
+        real: "Name an animal you'd want to photograph.",
+        imposter: "Name an animal you'd expect to be difficult to photograph."
+    },
+    {
+        real: "Name something you'd keep by the front door.",
+        imposter: "Name something you'd forget to take with you when leaving the house."
+    },
+    {
+        real: "Name something you'd use on a lazy morning.",
+        imposter: "Name something you'd be surprised to find on your kitchen table in the morning."
+    },
+    {
+        real: "Name something you'd light in the evening.",
+        imposter: "Name something you'd notice if the power suddenly went out."
+    },
+    {
+        real: "Name something you'd want during a heatwave.",
+        imposter: "Name something you'd hate to have stop working during a heatwave."
+    },
+    {
+        real: "Name something you'd wear on a cold morning.",
+        imposter: "Name something you'd regret wearing when the weather suddenly warmed up."
+    },
+    {
+        real: "Name something you'd take outside in heavy rain.",
+        imposter: "Name something you'd be annoyed to discover was not waterproof."
+    },
+    {
+        real: "Name something you'd keep for a house guest.",
+        imposter: "Name something you'd expect a house guest to accidentally use."
+    },
+    {
+        real: "Name something you'd put on a coffee table.",
+        imposter: "Name something you'd be annoyed to see left on a coffee table."
+    },
+    {
+        real: "Name something you'd want in a quiet reading corner.",
+        imposter: "Name something that would ruin a quiet reading corner."
+    },
+    {
+        real: "Name something you'd hear in a busy house.",
+        imposter: "Name something you'd notice immediately if it suddenly stopped making noise."
+    },
+    {
+        real: "Name a nickname you could imagine giving a friend.",
+        imposter: "Name a nickname you'd be surprised to hear at a family gathering."
+    },
+    {
+        real: "Name a word you'd happily put on a T-shirt.",
+        imposter: "Name a word you'd find strange written on a restaurant wall."
+    },
+    {
+        real: "Name a name you'd consider for a pet.",
+        imposter: "Name a name you'd expect to hear shouted across a playground."
+    },
+    {
+        real: "Name a fictional character you'd invite to a party.",
+        imposter: "Name a fictional character you'd expect to accidentally cause a problem at a party."
+    },
+    {
+        real: "Name something you'd put in a scrapbook.",
+        imposter: "Name something you'd expect someone to keep as a strange souvenir."
+    },
+    {
+        real: "Name a colour you'd choose for a bedroom.",
+        imposter: "Name a colour you'd notice immediately on a sports car."
+    },
+    {
+        real: "Name a sound you'd enjoy hearing while relaxing.",
+        imposter: "Name a sound you'd instantly recognise in a crowded place."
+    },
+    {
+        real: "Name a phrase you'd use when someone has surprised you.",
+        imposter: "Name a phrase you'd expect someone to say after making a silly mistake."
+    },
+    {
+        real: "Name something you'd write in a birthday card.",
+        imposter: "Name something you'd regret writing in a birthday card."
+    },
+    {
+        real: "Name something you'd keep as a lucky charm.",
+        imposter: "Name something you'd be curious to find in an old pocket."
+    },
+    {
+        real: "Name a fictional place you'd want to visit.",
+        imposter: "Name a fictional place you'd expect to be dangerous after dark."
+    },
+    {
+        real: "Name a game you'd play at a party.",
+        imposter: "Name a game you'd expect to become far too competitive."
+    },
+    {
+        real: "Name a hobby you'd like to try.",
+        imposter: "Name a hobby you'd expect to become expensive surprisingly quickly."
+    },
+    {
+        real: "Name an item you'd put in a museum display about your life.",
+        imposter: "Name an item someone might wrongly assume was important to you."
+    },
+    {
+        real: "Name a smell you'd associate with childhood.",
+        imposter: "Name a smell you'd notice immediately when entering a new house."
+    },
+    {
+        real: "Name something you'd put on a vision board.",
+        imposter: "Name something you'd be surprised to see on someone else's vision board."
+    },
+    {
+        real: "Name a phrase you'd put on a poster.",
+        imposter: "Name a phrase you'd find odd on a restaurant menu."
+    },
+    {
+        real: "Name something you'd save from a memorable day.",
+        imposter: "Name something you'd discover years later and instantly remember that day."
+    },
+    {
+        real: "Name a fictional job you'd try for a day.",
+        imposter: "Name a real job you'd expect to involve something completely unexpected."
+    },
+    {
+        real: "Name something you'd write on a bucket list.",
+        imposter: "Name something you'd be tempted to cross off a bucket list earlier than planned."
+    },
+    {
+        real: "Name a sound you'd use to describe a cartoon character.",
+        imposter: "Name a sound you'd recognise even if you couldn't see where it came from."
+    },
+    {
+        real: "Name an object that would make a funny trophy.",
+        imposter: "Name an object that would look strange as a trophy."
+    },
+    {
+        real: "Name a word that sounds like a person's name.",
+        imposter: "Name a person's name that sounds like it could be a place."
+    },
+    {
+        real: "Name something you'd want to be famous for.",
+        imposter: "Name something you'd be worried about becoming famous for."
+    },
+    {
+        real: "Name something you'd change about your room for one day.",
+        imposter: "Name something you'd notice if someone secretly changed in your room."
+    }
+];
+
+    const setupScreen = document.getElementById("setupScreen");
+    const questionScreen = document.getElementById("questionScreen");
+    const passScreen = document.getElementById("passScreen");
+    const discussionScreen = document.getElementById("discussionScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const votingScreen = document.getElementById("votingScreen");
+    const voteResultsScreen = document.getElementById("voteResultsScreen");
+
+    const playerCountInput = document.getElementById("playerCount");
+    const setupError = document.getElementById("setupError");
+    const playerEyebrow = document.getElementById("playerEyebrow");
+    const questionHeading = document.getElementById("questionHeading");
+    const questionText = document.getElementById("questionText");
+    const questionProgress = document.getElementById("questionProgress");
+    const nextButton = document.getElementById("nextButton");
+    const passHeading = document.getElementById("passHeading");
+    const passPlayerNumber = document.getElementById("passPlayerNumber");
+    const passCopy = document.getElementById("passCopy");
+    const showQuestionButton = document.getElementById("showQuestionButton");
+    const revealAnswerButton = document.getElementById("revealAnswerButton");
+    const realQuestionText = document.getElementById("realQuestionText");
+    const startVotingButton = document.getElementById("startVotingButton");
+    const votingHeading = document.getElementById("votingHeading");
+    const voteOptions = document.getElementById("voteOptions");
+    const voteError = document.getElementById("voteError");
+    const submitVoteButton = document.getElementById("submitVoteButton");
+    const voteResultsList = document.getElementById("voteResultsList");
+    const playAgainButton = document.getElementById("playAgainButton");
+    const changePlayersButton = document.getElementById("changePlayersButton");
+
+    let totalPlayers = 4;
+    let currentPlayerIndex = 0;
+    let imposterIndex = 0;
+    let selectedQuestion = null;
+    let passMode = "question";
+    let currentVoterIndex = 0;
+    let selectedVoteIndex = null;
+    let votes = [];
+
+    function showScreen(screenToShow) {
+      [setupScreen, questionScreen, passScreen, discussionScreen, resultScreen, votingScreen, voteResultsScreen].forEach(screen => {
+        screen.classList.add("hidden");
+      });
+      screenToShow.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startGame() {
+      const chosenCount = Number(playerCountInput.value);
+      if (!Number.isInteger(chosenCount) || chosenCount < 3 || chosenCount > 20) {
+        setupError.textContent = "Please choose a whole number between 3 and 20.";
+        return;
+      }
+
+      setupError.textContent = "";
+      totalPlayers = chosenCount;
+      currentPlayerIndex = 0;
+      currentVoterIndex = 0;
+      selectedVoteIndex = null;
+      votes = [];
+      imposterIndex = Math.floor(Math.random() * totalPlayers);
+      selectedQuestion = questions[Math.floor(Math.random() * questions.length)];
+      showPlayerQuestion();
+    }
+
+    function showPlayerQuestion() {
+      const playerNumber = currentPlayerIndex + 1;
+      const isImposter = currentPlayerIndex === imposterIndex;
+      playerEyebrow.textContent = `PLAYER ${playerNumber} OF ${totalPlayers}`;
+      questionHeading.textContent = `Player ${playerNumber}, your question is:`;
+      questionText.textContent = isImposter ? selectedQuestion.imposter : selectedQuestion.real;
+      questionProgress.textContent = `Player ${playerNumber} of ${totalPlayers}`;
+      nextButton.textContent = currentPlayerIndex === totalPlayers - 1 ? "Next — finish questions" : "Next";
+      showScreen(questionScreen);
+    }
+
+    function goToNextPlayer() {
+      if (currentPlayerIndex >= totalPlayers - 1) {
+        showScreen(discussionScreen);
+        return;
+      }
+      currentPlayerIndex += 1;
+      const nextPlayerNumber = currentPlayerIndex + 1;
+      passMode = "question";
+      passHeading.textContent = `Pass the device to Player ${nextPlayerNumber}`;
+      passPlayerNumber.textContent = nextPlayerNumber;
+      passCopy.textContent = "Hand the device to the next player. Make sure the previous question is no longer visible.";
+      showQuestionButton.textContent = "Next — show my question";
+      showScreen(passScreen);
+    }
+
+    function showResults() {
+      // Reveal only the real question. Do not identify the imposter.
+      realQuestionText.textContent = selectedQuestion.real;
+      showScreen(resultScreen);
+    }
+
+    function beginVoting() {
+      currentVoterIndex = 0;
+      selectedVoteIndex = null;
+      votes = new Array(totalPlayers).fill(null);
+      prepareVotingPass();
+    }
+
+    function prepareVotingPass() {
+      const voterNumber = currentVoterIndex + 1;
+      passMode = "vote";
+      passHeading.textContent = `Pass the device to Player ${voterNumber}`;
+      passPlayerNumber.textContent = voterNumber;
+      passCopy.textContent = `Player ${voterNumber}: take the device. The real question has been revealed. Choose your vote privately, then pass the device on.`;
+      showQuestionButton.textContent = `Next — Player ${voterNumber} votes`;
+      showScreen(passScreen);
+    }
+
+    function showVotingScreen() {
+      selectedVoteIndex = null;
+      voteError.textContent = "";
+      submitVoteButton.disabled = true;
+      votingHeading.textContent = `Player ${currentVoterIndex + 1}, who do you think received the different question?`;
+      voteOptions.innerHTML = "";
+
+      for (let playerIndex = 0; playerIndex < totalPlayers; playerIndex++) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "vote-option";
+        option.textContent = `Player ${playerIndex + 1}`;
+        option.disabled = playerIndex === currentVoterIndex;
+        if (option.disabled) {
+          option.textContent += " (you)";
+        }
+
+        option.addEventListener("click", () => {
+          selectedVoteIndex = playerIndex;
+          voteOptions.querySelectorAll(".vote-option").forEach(button => {
+            button.classList.remove("selected");
+          });
+          option.classList.add("selected");
+          submitVoteButton.disabled = false;
+          voteError.textContent = "";
+        });
+
+        voteOptions.appendChild(option);
+      }
+
+      showScreen(votingScreen);
+    }
+
+    function submitVote() {
+      if (selectedVoteIndex === null) {
+        voteError.textContent = "Choose a player before submitting your vote.";
+        return;
+      }
+
+      votes[currentVoterIndex] = selectedVoteIndex;
+      currentVoterIndex += 1;
+
+      if (currentVoterIndex >= totalPlayers) {
+        showVoteResults();
+      } else {
+        prepareVotingPass();
+      }
+    }
+
+    function showVoteResults() {
+      const rows = [];
+
+      for (let candidateIndex = 0; candidateIndex < totalPlayers; candidateIndex++) {
+        const voters = [];
+        votes.forEach((votedFor, voterIndex) => {
+          if (votedFor === candidateIndex) {
+            voters.push(`Player ${voterIndex + 1}`);
+          }
+        });
+        rows.push({ playerIndex: candidateIndex, voters, count: voters.length });
+      }
+
+      rows.sort((a, b) => b.count - a.count || a.playerIndex - b.playerIndex);
+      voteResultsList.innerHTML = "";
+
+      rows.forEach(result => {
+        const row = document.createElement("div");
+        row.className = "vote-result-row";
+
+        const top = document.createElement("div");
+        top.className = "vote-result-top";
+
+        const playerName = document.createElement("span");
+        playerName.textContent = `Player ${result.playerIndex + 1}`;
+
+        const count = document.createElement("span");
+        count.textContent = result.count === 1 ? "1 vote" : `${result.count} votes`;
+
+        top.append(playerName, count);
+
+        const voterNames = document.createElement("div");
+        voterNames.className = "vote-result-voters";
+        voterNames.textContent = `Voted: ${result.voters.length ? result.voters.join(", ") : "—"}`;
+
+        row.append(top, voterNames);
+        voteResultsList.appendChild(row);
+      });
+
+      showScreen(voteResultsScreen);
+    }
+
+    document.getElementById("startButton").addEventListener("click", startGame);
+    nextButton.addEventListener("click", goToNextPlayer);
+    showQuestionButton.addEventListener("click", () => {
+      if (passMode === "vote") {
+        showVotingScreen();
+      } else {
+        showPlayerQuestion();
+      }
+    });
+    revealAnswerButton.addEventListener("click", showResults);
+    startVotingButton.addEventListener("click", beginVoting);
+    submitVoteButton.addEventListener("click", submitVote);
+    playAgainButton.addEventListener("click", startGame);
+    changePlayersButton.addEventListener("click", () => {
+      setupError.textContent = "";
+      showScreen(setupScreen);
+    });
+    playerCountInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") startGame();
+    });
+  </script>
 </body>
-
 </html>
